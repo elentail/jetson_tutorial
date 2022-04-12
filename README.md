@@ -3,7 +3,8 @@
 1. [jetson-stats](#1-jetson-stats)
 2. [lightdm 설치](#2-lightdm-설치)
 3. [VNC 설치](#3-vnc-설치)
-4. [pytorch 설치](#4-pytorch-)
+4. [torch 설치](#4-pytorch-설치)
+
 ---
 
 ## 1. jetson-stats
