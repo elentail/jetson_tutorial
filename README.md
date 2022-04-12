@@ -105,4 +105,7 @@ $ python3 setup.py install --user
 $ cd ../  # attempting to load torchvision from build dir will result in import error
 ```
 
-```
+
+[참고1](https://velog.io/@jjun8177/Jetson-Nano%EC%99%80-YOLO-v5%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-detection-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8)
+
+[참고2](https://whiteknight3672.tistory.com/316)
