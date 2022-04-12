@@ -81,7 +81,8 @@ sudo reboot
 [동영상 참조](https://www.youtube.com/watch?v=8nHZKTkYACc)
 [Pytorch ARM wheels](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048)
 
-#### pip3 install numpy==1.19.4 # 1.19.5 설치시 torch 오류 발생
+> pip3 install numpy==1.19.4 # 1.19.5 설치시 torch 오류 발생
+> pip3 install --no-deps matplotlib==3.2.2
 
 > Python 3.6
 ```bash
