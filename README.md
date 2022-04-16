@@ -5,6 +5,7 @@
 3. [VNC 설치](#3-vnc-설치)
 4. [Opencv + CUDA 설치](#4-opencv-설치)
 5. [torch 설치](#5-pytorch-설치)
+6. [wifi 포트포워딩 설정](#6-포트포워딩-설정)
 
 ---
 
@@ -169,8 +170,72 @@ $ cd ../  # attempting to load torchvision from build dir will result in import 
 ```
 
 
-
-
 [참고1](https://velog.io/@jjun8177/Jetson-Nano%EC%99%80-YOLO-v5%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-detection-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8)
 
 [참고2](https://whiteknight3672.tistory.com/316)
+
+
+
+## 6. 포트포워딩 설정
+
+> 무선 공유기 설정을 이용하여 포트포워딩 후 재시작 필요
+- 무선 공유기가 기본 게이트 웨이로 하는 IP가 중요함, 랜선으로 연결된 PC 에서 wifi 접속을 위해서는 해당 IP로 접근 후 무선공유릐 포트포워딩을 통해 접속되는 구조
+
+> 안드로이드로 RTSP 설정 (astra streaming, rtsp://id:passwd@IP:port/name 형식으로 스트리밍 됨)
+> 
+- 아래 코드를 참조
+
+```python
+import cv2
+import datetime
+import os
+
+
+def write_video():
+    #현재시간 가져오기
+    current_time = datetime.datetime.now()
+
+    #RTSP를 불러오는 곳
+    video_capture = cv2.VideoCapture('rtsp://192.168.35.190:5554/tt')
+
+    # 웹캠 설정
+    video_capture.set(3, 800)  # 영상 가로길이 설정
+    video_capture.set(4, 600)  # 영상 세로길이 설정
+    fps = 20
+    # 가로 길이 가져오기
+    streaming_window_width = int(video_capture.get(3))
+    # 세로 길이 가져오기
+    streaming_window_height = int(video_capture.get(4))
+
+    #현재 시간을 '년도 달 일 시간 분 초'로 가져와서 문자열로 생성
+    file_name = str(current_time.strftime('%Y %m %d %H %M %S'))
+
+    #파일 저장하기 위한 변수 선언
+    path = f'./{"_".join(file_name)}.avi'
+
+    # DIVX 코덱 적용 # 코덱 종류 # DIVX, XVID, MJPG, X264, WMV1, WMV2
+    # 무료 라이선스의 이점이 있는 XVID를 사용
+    fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
+
+    # 비디오 저장
+    # cv2.VideoWriter(저장 위치, 코덱, 프레임, (가로, 세로))
+    out = cv2.VideoWriter(path, fourcc, fps, (streaming_window_width, streaming_window_height))
+
+    while True:
+        ret, frame = video_capture.read()
+
+        # 영상을 저장한다.
+        out.write(frame)
+
+        # 1ms뒤에 뒤에 코드 실행해준다.
+        k = cv2.waitKey(1) & 0xff
+        #키보드 q 누르면 종료된다.
+        if k == 113:
+            break
+    video_capture.release()  # cap 객체 해제
+    out.release()  # out 객체 해제
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    write_video()
+```
