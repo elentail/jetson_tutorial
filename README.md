@@ -239,3 +239,59 @@ def write_video():
 if __name__ == "__main__":
     write_video()
 ```
+
+> 저장된 avi 영상을 다시 불러 변환 (안경 트래킹)
+```python
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture('/home/roadcom/20220417_001514.avi')
+fps = 20
+
+#fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
+#out = cv2.VideoWriter('gray_output.avi', fourcc, 20, (1280,720))
+
+if cap.isOpened():  
+    
+    fourcc = cv2.VideoWriter_fourcc(*'DIVX') # 인코딩 포맷 문자
+    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    size = (int(width), int(height))   
+    out = cv2.VideoWriter('gray_output.avi', fourcc, fps, size) 
+    
+    while True:
+        ret, frame = cap.read()
+        
+        if ret:                      # 프레임 읽기 정상
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            cv2.imshow('frame',gray) # 화면에 표시  --- ③
+            
+            ret, dst = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV|cv2.THRESH_OTSU)
+            conts, _ = cv2.findContours(dst, cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+            
+            valid_cons = []
+            
+            for con in conts:
+                ret = cv2.contourArea(con)
+                if 800 < ret < 3500:
+                    (x,y), radius = cv2.minEnclosingCircle(con)
+                    if 20 < radius < 40 and 400 < x < 850 and  150 < y < 400:
+                        valid_cons.append(con)
+                        #cv2.drawContours(frame, [con],0, (20,255,200), 3)    
+            
+            if len(valid_cons) > 0:
+                convex = cv2.convexHull(np.vstack(valid_cons))
+                cv2.drawContours(frame, [convex],0, (255,51,51), -1)    
+            
+            #out.write(cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR));
+            out.write(frame);
+            if cv2.waitKey(int(1000/fps)) != -1: 
+                break
+        else:                        # 다음 프레임 읽을 수 없슴,
+            break                    # 재생 완료        
+    out.release()  
+    
+cap.release()
+#out.release()
+cv2.destroyAllWindows()
+```
